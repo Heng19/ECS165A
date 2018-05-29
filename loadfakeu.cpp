@@ -28,6 +28,7 @@ struct course{
 };
 
 struct student{
+  string Term;
   string CID;
   string Seat;
   string SID;
@@ -75,7 +76,11 @@ Data Read(const char* filename){
   bool C1 = false;
   bool C2 = false;
   bool STUDENT = false;
+  bool Same_CRM;
+  string CRM;
+  string Term;
   string value;
+  string Instructor;
   string CID;
   course c1;
   student s1;
@@ -101,11 +106,18 @@ Data Read(const char* filename){
        if(C1 == true){
          strs[0].erase(strs[0].begin());
          strs[5].erase(strs[5].end()-1);
+         strs[5].erase(strs[5].end()-1);
+         for(int i = 0; i<= 5; i++){
+           if(strs[0] == ""){strs[i] = "NULL";}
+         }
+         Term = strs[1];
          CID = strs[0];
 
          c1.CID = strs[0];
          c1.Term = strs[1];
          c1.Subj = strs[2];
+         Same_CRM = CRM == strs[3];
+         CRM = strs[3];
          c1.Crse = strs[3];
          c1.Section = strs[4];
          c1.Units = strs[5];
@@ -125,6 +137,14 @@ Data Read(const char* filename){
          if(strs[0] != "") {
            std::replace( strs[0].begin(), strs[0].end(), '\'', '\\');
            c1.Instructor = strs[0];
+           Instructor = strs[0];
+         }
+         else{
+           if(Same_CRM){c1.Instructor = Instructor;}
+           else{Instructor = "";}
+         }
+         for(int i = 1; i <=5 ; i++){
+           if(strs[i] == ""){strs[i] = "NULL";}
          }
          c1.Type = strs[1];
          c1.Days = strs[2];
@@ -146,16 +166,17 @@ Data Read(const char* filename){
            std::replace( strs[2].begin(), strs[2].end(), '\'', '\\');
            std::replace( strs[3].begin(), strs[3].end(), '\'', '\\');
            std::replace( strs[10].begin(), strs[10].end(), '\'', '\\');
+           s1.Term = Term;
            s1.CID = CID;
+           for(int i = 0; i <=10 ; i++){
+             if(strs[i] == ""){strs[i] = "NULL";}
+           }
            s1.Seat = strs[0];
            s1.SID = strs[1];
            s1.Surname = strs[2];
            s1.PrefName = strs[3];
            s1.Level = strs[4];
-           if(strs[5] == ""){
-             s1.Units = "NULL";
-           }
-           else{s1.Units = strs[5];}
+           s1.Units = strs[5];
            s1.Class = strs[6];
            s1.Major = strs[7];
            s1.Grade = strs[8];
@@ -235,8 +256,9 @@ int main(int argc, char* argv[]) {
       "BUILD         CHAR(50)    ," \
       "ROOM            CHAR(50) );";
 
-      sql2 = "CREATE TABLE STUDENTS("  \
-      "CID            CHAR(50)     NOT NULL," \
+      sql2 = "CREATE TABLE STUDENTS(" \
+      "TERM           CHAR(50)      ,"\
+      "CID            CHAR(50)     ," \
       "SEAT           CHAR(50)    ," \
       "SID           CHAR(50)     ," \
       "SURNAME           CHAR(50)," \
@@ -268,29 +290,32 @@ int main(int argc, char* argv[]) {
             char char_array[n+1];
             strcpy(char_array, rel_path.c_str());
             data = Read(char_array);
-        //    cout << char_array << ": "  << data.Courses.size() << endl;
-            sql3 = "INSERT INTO COURSES\
-                      VALUES";
-            for (int i = 0; i< data.Courses.size()-2 ; i++){
-                sql3 += "('" + data.Courses[i].CID + "','" + data.Courses[i].Term + "','" + data.Courses[i].Subj + "','" + data.Courses[i].Crse + "','"
-                        +data.Courses[i].Section+ "','" + data.Courses[i].Units + "','" + data.Courses[i].Instructor+ "','" + data.Courses[i].Type + "','"
-                        + data.Courses[i].Days + "','"+ data.Courses[i].Time + "','" + data.Courses[i].Build + "','" + data.Courses[i].Room + "'),";
-                }
-            int i = data.Courses.size()-1;
+
+        sql3 = "INSERT INTO COURSES\
+                  VALUES";
+        for (int i = 0; i<= data.Courses.size()-2 ; i++){
+
             sql3 += "('" + data.Courses[i].CID + "','" + data.Courses[i].Term + "','" + data.Courses[i].Subj + "','" + data.Courses[i].Crse + "','"
-                      +data.Courses[i].Section+ "','" + data.Courses[i].Units + "','" + data.Courses[i].Instructor+ "','" + data.Courses[i].Type + "','"
-                      + data.Courses[i].Days + "','"+ data.Courses[i].Time + "','" + data.Courses[i].Build + "','" + data.Courses[i].Room + "');";
-            sql4 = "INSERT INTO STUDENTS\
-                    VALUES";
-            for (int i = 0; i< data.Students.size()-2 ; i++){
-                sql4 += "('" + data.Students[i].CID + "','" + data.Students[i].Seat + "','" + data.Students[i].SID + "','" + data.Students[i].Surname + "','"
-                        +data.Students[i].PrefName+ "','" + data.Students[i].Level + "'," + data.Students[i].Units+ ",'" + data.Students[i].Class + "','"
-                        + data.Students[i].Major + "','"+ data.Students[i].Grade + "','" + data.Students[i].Status + "','" + data.Students[i].Email + "'),";
-                 }
-            i = data.Students.size()-1;
-            sql4  += "('" + data.Students[i].CID + "','" + data.Students[i].Seat + "','" + data.Students[i].SID + "','" + data.Students[i].Surname + "','"
-                      +data.Students[i].PrefName+ "','" + data.Students[i].Level + "'," + data.Students[i].Units+ ",'" + data.Students[i].Class + "','"
-                      +data.Students[i].Major + "','"+ data.Students[i].Grade + "','" + data.Students[i].Status + "','" + data.Students[i].Email + "');";
+                    +data.Courses[i].Section+ "'," + data.Courses[i].Units + ",'" + data.Courses[i].Instructor+ "','" + data.Courses[i].Type + "','"
+                    + data.Courses[i].Days + "','"+ data.Courses[i].Time + "','" + data.Courses[i].Build + "','" + data.Courses[i].Room + "'),";
+        }
+        int i = data.Courses.size() - 1;
+        sql3 += "('" + data.Courses[i].CID + "','" + data.Courses[i].Term + "','" + data.Courses[i].Subj + "','" + data.Courses[i].Crse + "','"
+                  +data.Courses[i].Section+ "'," + data.Courses[i].Units + ",'" + data.Courses[i].Instructor+ "','" + data.Courses[i].Type + "','"
+                  + data.Courses[i].Days + "','"+ data.Courses[i].Time + "','" + data.Courses[i].Build + "','" + data.Courses[i].Room + "');";
+
+        sql4 = "INSERT INTO STUDENTS\
+                VALUES";
+
+      for (int i = 0; i<= data.Students.size()-2 ; i++){
+            sql4 += "('" + data.Students[i].Term + "','"+ data.Students[i].CID + "','" + data.Students[i].Seat + "','" + data.Students[i].SID + "','" + data.Students[i].Surname + "','"
+                    +data.Students[i].PrefName+ "','" + data.Students[i].Level + "'," + data.Students[i].Units+ ",'" + data.Students[i].Class + "','"
+                    + data.Students[i].Major + "','"+ data.Students[i].Grade + "','" + data.Students[i].Status + "','" + data.Students[i].Email + "'),";
+             }
+        i = data.Students.size()-1;
+        sql4  += "('" + data.Students[i].Term + "','" + data.Students[i].CID + "','" + data.Students[i].Seat + "','" + data.Students[i].SID + "','" + data.Students[i].Surname + "','"
+                  +data.Students[i].PrefName+ "','" + data.Students[i].Level + "'," + data.Students[i].Units+ ",'" + data.Students[i].Class + "','"
+                  +data.Students[i].Major + "','"+ data.Students[i].Grade + "','" + data.Students[i].Status + "','" + data.Students[i].Email + "');";
             W.exec( sql3 );
             W.exec( sql4 );
         }
