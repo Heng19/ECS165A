@@ -1,0 +1,233 @@
+#### 3.1
+SELECT T1.TERM, NUM, TOTAL, ROUND(NUM*1.0/TOTAL*1.0,2) AS RATIO
+FROM
+(SELECT TERM, COUNT(DISTINCT SID) AS TOTAL
+FROM STUDENTS
+GROUP BY TERM) T1
+INNER JOIN
+(SELECT TERM, COUNT(*) AS NUM
+FROM(
+SELECT TERM,SID
+FROM STUDENTS
+GROUP BY TERM,SID
+HAVING SUM(UNITS) = 1) T2
+GROUP BY TERM
+) T3
+ON T1.TERM = T3.TERM;
+
+
+#### 3.2
+
+SELECT INSTRUCTOR, ROUND(TOTAL/NUM,4) AS AVAG
+FROM (SELECT INSTRUCTOR, SUM(case
+                        when GRADE ='A+' then 4.0
+                        when GRADE ='A' then 4.0
+                        when GRADE = 'A-' then 3.7
+                        when GRADE ='B+' then 3.3
+                        when GRADE ='B' then 3.0
+                        when GRADE ='B-' then 2.7
+                        when GRADE ='C+' then 2.3
+                        when GRADE ='C' then 2
+                        when GRADE ='C-' then 1.7
+                        when GRADE ='D+' then 1.3
+                        when GRADE ='D' then 1
+                        when GRADE ='D-' then 0.7
+                        else 0.0
+               end
+               ) AS TOTAL,
+               SUM (case
+               when GRADE ='A+' then 1.0
+               when GRADE ='A' then 1.0
+               when GRADE ='A-'then 1.0
+               when GRADE ='B+' then 1.0
+               when GRADE ='B' then 1.0
+               when GRADE ='B-' then 1.0
+               when GRADE ='C+' then 1.0
+               when GRADE ='C' then 1.0
+               when GRADE ='C-' then 1.0
+               when GRADE ='D+' then 1.0
+               when GRADE ='D' then 1.0
+               when GRADE ='D-' then 1.0
+               else 0.0
+               end
+               ) AS NUM
+
+FROM COURSES,STUDENTS
+WHERE COURSES.CID = STUDENTS.CID
+GROUP BY INSTRUCTOR) T1
+WHERE T1.NUM <> 0
+ORDER BY AVG;
+
+
+#### 3.3
+SELECT TERM, AVG(AG) AS AG_GRADE
+FROM(
+SELECT TERM,SID,ROUND(SUM(case
+                        when GRADE ='A+' then 4.0*UNITS
+                        when GRADE ='A' then 4.0*UNITS
+                        when GRADE = 'A-' then 3.7*UNITS
+                        when GRADE ='B+' then 3.3*UNITS
+                        when GRADE ='B' then 3.0*UNITS
+                        when GRADE ='B-' then 2.7*UNITS
+                        when GRADE ='C+' then 2.3*UNITS
+                        when GRADE ='C' then 2*UNITS
+                        when GRADE ='C-' then 1.7*UNITS
+                        when GRADE ='D+' then 1.3*UNITS
+                        when GRADE ='D' then 1*UNITS
+                        when GRADE ='D-' then 0.7*UNITS
+                        else 0.0
+               end
+               )/
+               SUM (case
+               when GRADE ='A+' then 1.0*UNITS
+               when GRADE ='A' then 1.0*UNITS
+               when GRADE ='A-'then 1.0*UNITS
+               when GRADE ='B+' then 1.0*UNITS
+               when GRADE ='B' then 1.0*UNITS
+               when GRADE ='B-' then 1.0*UNITS
+               when GRADE ='C+' then 1.0*UNITS
+               when GRADE ='C' then 1.0*UNITS
+               when GRADE ='C-' then 1.0*UNITS
+               when GRADE ='D+' then 1.0*UNITS
+               when GRADE ='D' then 1.0*UNITS
+               when GRADE ='D-' then 1.0*UNITS
+               else 0.0
+               end
+               ),4) AS AG
+FROM STUDENTS
+GROUP BY TERM,SID
+HAVING SUM(UNITS) = 12
+AND SUM (case
+when GRADE ='A+' then 1.0*UNITS
+when GRADE ='A' then 1.0*UNITS
+when GRADE ='A-'then 1.0*UNITS
+when GRADE ='B+' then 1.0*UNITS
+when GRADE ='B' then 1.0*UNITS
+when GRADE ='B-' then 1.0*UNITS
+when GRADE ='C+' then 1.0*UNITS
+when GRADE ='C' then 1.0*UNITS
+when GRADE ='C-' then 1.0*UNITS
+when GRADE ='D+' then 1.0*UNITS
+when GRADE ='D' then 1.0*UNITS
+when GRADE ='D-' then 1.0*UNITS
+else 0.0
+end
+) <> 0) T1
+GROUP BY TERM
+ORDER BY TERM;
+
+
+#### 3.4
+SELECT CID, SUM (CASE
+                  when GRADE = 'F' then 0
+                  when GRADE = 'NP' then 0
+                  when GRADE = 'NS' then 0
+                  when GRADE = 'F' then 0
+                  when GRADE ='A+' then 1.0
+                  when GRADE ='A' then 1.0
+                  when GRADE ='A-'then 1.0
+                  when GRADE ='B+' then 1.0
+                  when GRADE ='B' then 1.0
+                  when GRADE ='B-' then 1.0
+                  when GRADE ='C+' then 1.0
+                  when GRADE ='C' then 1.0
+                  when GRADE ='C-' then 1.0
+                  when GRADE ='D+' then 1.0
+                  when GRADE ='D' then 1.0
+                  when GRADE ='D-' then 1.0
+                  when GRADE ='P' then 1.0
+                  else 0.0
+                  end
+                  )/
+                  SUM (CASE
+                                    when GRADE = 'F' then 1.0
+                                    when GRADE = 'NP' then 1.0
+                                    when GRADE = 'NS' then 1.0
+                                    when GRADE = 'F' then 1.0
+                                    when GRADE ='A+' then 1.0
+                                    when GRADE ='A' then 1.0
+                                    when GRADE ='A-'then 1.0
+                                    when GRADE ='B+' then 1.0
+                                    when GRADE ='B' then 1.0
+                                    when GRADE ='B-' then 1.0
+                                    when GRADE ='C+' then 1.0
+                                    when GRADE ='C' then 1.0
+                                    when GRADE ='C-' then 1.0
+                                    when GRADE ='D+' then 1.0
+                                    when GRADE ='D' then 1.0
+                                    when GRADE ='D-' then 1.0
+                                    when GRADE ='P' then 1.0
+                                    else 0.0
+                                    end
+                                    ) AS PASSING_RATE
+  FROM STUDENTS
+  GROUP BY CID
+  HAVING                   SUM (CASE
+                                      when GRADE = 'F' then 1.0
+                                      when GRADE = 'NP' then 1.0
+                                      when GRADE = 'NS' then 1.0
+                                      when GRADE = 'F' then 1.0
+                                      when GRADE ='A+' then 1.0
+                                      when GRADE ='A' then 1.0
+                                      when GRADE ='A-'then 1.0
+                                      when GRADE ='B+' then 1.0
+                                      when GRADE ='B' then 1.0
+                                      when GRADE ='B-' then 1.0
+                                      when GRADE ='C+' then 1.0
+                                      when GRADE ='C' then 1.0
+                                      when GRADE ='C-' then 1.0
+                                      when GRADE ='D+' then 1.0
+                                      when GRADE ='D' then 1.0
+                                      when GRADE ='D-' then 1.0
+                                      when GRADE ='P' then 1.0
+                                      else 0.0
+                                      end
+                                      )  <> 0
+                                      ORDER BY PASSING_RATE;
+
+
+#### 3.5 ####
+
+SELECT DISTINCT INSTRUCTOR,CID,TERM,SUBJ,CRSE,SECTION
+FROM COURSES
+NATURAL JOIN
+(
+SELECT TERM, DAYS, TIME,BUILD, ROOM
+FROM COURSES
+WHERE UNITS IS NOT NULL
+AND (TYPE LIKE '%Lecture%' OR TYPE LIKE '%Laboratory%')
+GROUP BY TERM,SECTION, DAYS, TIME,BUILD, ROOM
+HAVING COUNT(*) > 1
+AND DAYS NOT LIKE '%NULL%'
+AND TIME NOT LIKE '%NULL%'
+AND BUILD NOT LIKE '%NULL%'
+AND ROOM NOT LIKE '%NULL%') T2
+WHERE SECTION LIKE '%1%'
+ORDER BY INSTRUCTOR,TERM,CRSE,SUBJ;
+;
+
+
+
+
+#### 3.6 ####
+
+
+#### 3.7 ####
+
+
+SELECT DISTINCT T1.SID AS SID, T1.MAJOR AS OLD_M
+
+FROM STUDENTS AS T1
+INNER JOIN
+STUDENTS AS T2
+ON T1.SID = T2.SID
+AND T1.MAJOR <> T2.MAJOR
+AND T1.MAJOR NOT LIKE '%ABC%'
+AND T2.MAJOR LIKE '%ABC%'
+AND T1.TERM < T2.TERM
+ORDER BY T1.SID;
+
+
+
+#### 3.8 ####
+;
