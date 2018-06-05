@@ -25,6 +25,11 @@ struct course{
   string Time;
   string Build;
   string Room;
+
+  bool operator==(const course & a) const
+  {
+      return (CID == a.CID && Term == a.Term && Subj == a.Subj && Crse == a.Crse && Section == a.Section && Units == a.Units && Instructor == a.Instructor && Type == a.Type && Days == a.Days &&Time == a.Time &&Build == a.Build && Room == a.Room);
+  }
 };
 
 struct student{
@@ -43,6 +48,7 @@ struct student{
   string Email;
 
 };
+
 class Data{
   public:
   vector<course> Courses;
@@ -83,7 +89,9 @@ Data Read(const char* filename){
   string Instructor;
   string CID;
   course c1;
+  course c2;
   student s1;
+  student s2;
 //  vector<course> Courses;
 //  vector<student> Students;
   while ( file.good() )
@@ -151,6 +159,8 @@ Data Read(const char* filename){
          c1.Time = strs[3];
          c1.Build = strs[4];
          c1.Room = strs[5];
+         if(c1 == c2){continue;}
+         c2 = c1;
          data.Courses.insert(data.Courses.end(),c1);
          continue;
          }
@@ -182,7 +192,8 @@ Data Read(const char* filename){
            s1.Grade = strs[8];
            s1.Status = strs[9];
            s1.Email = strs[10];
-           data.Students.insert(data.Students.end(),s1);
+           if(s1.Units == "NULL" || s1.Grade == "NULL"){continue;}
+           else{data.Students.insert(data.Students.end(),s1);
            c1.CID = "NULL";
            c1.Term = "NULL";
            c1.Subj = "NULL";
@@ -193,7 +204,7 @@ Data Read(const char* filename){
            c1.Days = "NULL";
            c1.Time = "NULL";
            c1.Build = "NULL";
-           c1.Room = "NULL";
+           c1.Room = "NULL";}
          }
         }
         return data;
@@ -254,7 +265,8 @@ int main(int argc, char* argv[]) {
       "DAYS        CHAR(50)," \
       "TIME         CHAR(50),"
       "BUILD         CHAR(50)    ," \
-      "ROOM            CHAR(50) );";
+      "ROOM            CHAR(50),"\
+      "PRIMARY KEY (CID,TERM,TYPE,DAYS,SECTION,TIME,ROOM));" ;
 
       sql2 = "CREATE TABLE STUDENTS(" \
       "TERM           CHAR(50)      ,"\
@@ -269,7 +281,8 @@ int main(int argc, char* argv[]) {
       "MAJOR        CHAR(50)," \
       "GRADE         CHAR(50),"
       "STATUS         CHAR(50)    ," \
-      "EMAIL            CHAR(50) );";
+      "EMAIL            CHAR(50) ,"\
+      "PRIMARY KEY (CID,SID,TERM));";
 
       work W(C);
 
